@@ -82,6 +82,29 @@ function MemberManager({ tripId, members, refreshMembers }) {
     }
   }
 
+  async function handleEditMember(memberId, newName) {
+    try {
+      const res = await fetch(`/api/members/${memberId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newName }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to update member");
+      }
+
+      showToast("Member updated!");
+      refreshMembers();
+      // Also potentially refresh expenses if they are open in another tab, 
+      // but here we can just refresh local expenses if necessary
+      fetchExpenses();
+    } catch (err) {
+      showToast(err.message, "error");
+    }
+  }
+
   async function handleDeleteMember(memberId) {
     if (!window.confirm("Are you sure you want to remove this member?")) return;
     try {
@@ -117,6 +140,7 @@ function MemberManager({ tripId, members, refreshMembers }) {
         <MemberList
           members={members}
           balances={balances}
+          onEdit={handleEditMember}
           onDelete={handleDeleteMember}
         />
       </section>

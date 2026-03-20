@@ -1,6 +1,10 @@
+import { useState } from "react";
 import PropTypes from "prop-types";
 
-function MemberList({ members, balances, onDelete }) {
+function MemberList({ members, balances, onEdit, onDelete }) {
+  const [editingId, setEditingId] = useState(null);
+  const [editName, setEditName] = useState("");
+
   if (!members || members.length === 0) {
     return (
       <div className="empty-state">
@@ -10,6 +14,18 @@ function MemberList({ members, balances, onDelete }) {
       </div>
     );
   }
+
+  const handleStartEdit = (member) => {
+    setEditingId(member._id);
+    setEditName(member.name);
+  };
+
+  const handleSaveEdit = (id) => {
+    if (editName.trim()) {
+      onEdit(id, editName.trim());
+    }
+    setEditingId(null);
+  };
 
   return (
     <div className="member-list-wrapper">
@@ -27,7 +43,32 @@ function MemberList({ members, balances, onDelete }) {
           return (
             <div key={member._id} className="member-item">
               <div className="member-info">
-                <span className="member-name">{member.name}</span>
+                {editingId === member._id ? (
+                  <div className="edit-mode" style={{ display: "flex", gap: "0.5rem" }}>
+                    <input 
+                      type="text" 
+                      value={editName} 
+                      onChange={(e) => setEditName(e.target.value)} 
+                      autoFocus
+                      className="edit-input"
+                      style={{ padding: "0.2rem 0.5rem", borderRadius: "4px", border: "1px solid #ccc" }}
+                    />
+                    <button className="btn-icon" onClick={() => handleSaveEdit(member._id)}>💾</button>
+                    <button className="btn-icon" onClick={() => setEditingId(null)}>❌</button>
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <span className="member-name">{member.name}</span>
+                    <button 
+                      className="btn-icon" 
+                      onClick={() => handleStartEdit(member)}
+                      title="Edit member name"
+                      style={{ fontSize: "0.8rem" }}
+                    >
+                      ✏️
+                    </button>
+                  </div>
+                )}
                 <div className="member-stats">
                   <span className="stat detail">Paid: ${stats.paid.toFixed(2)}</span>
                   <span className="stat detail">Owes: ${stats.owed.toFixed(2)}</span>
@@ -58,6 +99,7 @@ function MemberList({ members, balances, onDelete }) {
 MemberList.propTypes = {
   members: PropTypes.array.isRequired,
   balances: PropTypes.object.isRequired,
+  onEdit: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
 };
 

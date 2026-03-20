@@ -68,6 +68,9 @@ router.put("/:id", async (req, res) => {
     const db = getDb();
     const { name } = req.body;
 
+    const oldMember = await db.collection("members").findOne({ _id: new ObjectId(req.params.id) });
+    if (!oldMember) return res.status(404).json({ error: "Member not found" });
+
     const updates = {};
     if (name !== undefined) updates.name = name.trim();
     updates.updatedAt = new Date();
@@ -80,7 +83,24 @@ router.put("/:id", async (req, res) => {
         { returnDocument: "after" }
       );
 
-    if (!result) return res.status(404).json({ error: "Member not found" });
+    // If the name changed, cascade the update to the expenses collection
+    if (name && oldMember.name !== name.trim()) {
+      const oldName = oldMember.name;
+      const newName = name.trim();
+
+      // 1. Update expenses where they paid
+      await db.collection("expenses").updateMany(
+        { paidBy: oldName },
+        { $set: { paidBy: newName } }
+      );
+
+      // 2. Update expenses where they are in splitAmong
+      await db.collection("expenses").updateMany(
+        { splitAmong: oldName },
+        { $set: { "splitAmong.$": newName } }
+      );
+    }
+
     res.json(result);
   } catch (err) {
     res.status(500).json({ error: "Failed to update member" });
