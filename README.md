@@ -27,7 +27,7 @@
 
 ## 📖 Project Description
 
-Traveling in a group is fun — splitting the bill is not. TripSplit is a **group travel expense tracker** that solves the classic problem: after a trip, nobody can remember who paid for what, and figuring out who owes whom becomes a frustrating spreadsheet exercise.
+Traveling in a group is fun — splitting  the bill is not. TripSplit is a **group travel expense tracker** that solves the classic problem: after a trip, nobody can remember who paid for what, and figuring out who owes whom becomes a frustrating spreadsheet exercise.
 
 TripSplit lets a group of travelers:
 
