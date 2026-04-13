@@ -16,15 +16,22 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS — must be before everything else
-const allowedOrigins = process.env.VERCEL
-  ? [process.env.FRONTEND_URL]          // 在 Vercel 环境变量里设置前端域名
-  : ["http://localhost:5173", "http://localhost:3000"];
+// Trust the reverse proxy when on Vercel so secure cookies can be set
+if (process.env.VERCEL) {
+  app.set("trust proxy", 1);
+}
 
+// CORS — must be before everything else
 app.use(
   cors({
-    origin: allowedOrigins,
-    credentials: true,                   // 允许携带 cookie
+    origin: function (origin, callback) {
+      if (!origin || origin.includes("localhost") || origin.includes("vercel.app") || origin === process.env.FRONTEND_URL) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
   })
 );
 
