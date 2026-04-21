@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import ExpenseItem from "../ExpenseItem/ExpenseItem";
 import styles from "./ExpenseList.module.css";
 
-const CATEGORIES = ["All", "Food & Drink", "Transport", "Accommodation", "Activities", "Shopping", "Other"];
+// Categories derived dynamically from data
 
 function ExpenseList({ tripId = null, onEdit, refreshTrigger = 0 }) {
   const [expenses, setExpenses] = useState([]);
@@ -55,6 +55,7 @@ function ExpenseList({ tripId = null, onEdit, refreshTrigger = 0 }) {
     return matchCategory && matchSearch;
   });
 
+  const dynamicCategories = ["All", ...new Set(expenses.map(e => e.category))];
   const total = filtered.reduce((sum, e) => sum + e.amount, 0);
 
   if (loading) return <div className={styles["expense-list-status"]} aria-live="polite">Loading expenses...</div>;
@@ -81,7 +82,7 @@ function ExpenseList({ tripId = null, onEdit, refreshTrigger = 0 }) {
           />
           <fieldset className={styles["filter-categories"]} style={{ border: "none", padding: 0, margin: 0 }}>
             <legend className="visually-hidden" style={{ display: 'none' }}>Filter by category</legend>
-            {CATEGORIES.map((cat) => (
+            {dynamicCategories.map((cat) => (
               <button
                 key={cat}
                 className={`${styles["filter-chip"]} ${filterCategory === cat ? styles.active : ""}`}

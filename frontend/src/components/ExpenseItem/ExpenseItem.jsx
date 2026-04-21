@@ -11,7 +11,8 @@ const CATEGORY_ICONS = {
 };
 
 function ExpenseItem({ expense, onEdit, onDelete }) {
-  const icon = CATEGORY_ICONS[expense.category] || "📌";
+  const isPayment = expense.category === "Payment";
+  const icon = isPayment ? "💸" : (CATEGORY_ICONS[expense.category] || "📌");
   const formattedDate = expense.date
     ? new Date(expense.date).toLocaleDateString("en-US", {
         month: "short",
@@ -29,11 +30,22 @@ function ExpenseItem({ expense, onEdit, onDelete }) {
       <div className={styles["expense-icon"]} aria-hidden="true">{icon}</div>
 
       <div className={styles["expense-main"]}>
-        <h3 className={styles["expense-description"]}>{expense.description}</h3>
+        {isPayment ? (
+          <h3 className={styles["expense-description"]}>
+            Payment to {expense.splitAmong ? expense.splitAmong.join(", ") : "Unknown"}
+          </h3>
+        ) : (
+          <h3 className={styles["expense-description"]}>{expense.description}</h3>
+        )}
+
         <div className={styles["expense-meta"]}>
           <span className={styles["expense-paid-by"]}>Paid by {expense.paidBy}</span>
-          <span className={styles["expense-dot"]} aria-hidden="true">·</span>
-          <span className={styles["expense-category"]}>{expense.category}</span>
+          {!isPayment && (
+            <>
+              <span className={styles["expense-dot"]} aria-hidden="true">·</span>
+              <span className={styles["expense-category"]}>{expense.category}</span>
+            </>
+          )}
           {formattedDate && (
             <>
               <span className={styles["expense-dot"]} aria-hidden="true">·</span>
@@ -41,7 +53,7 @@ function ExpenseItem({ expense, onEdit, onDelete }) {
             </>
           )}
         </div>
-        {perPerson && (
+        {perPerson && !isPayment && (
           <p className={styles["expense-split"]} style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginTop: "0.2rem" }}>
             ${perPerson} / person <span aria-hidden="true">·</span> split among: <strong>{expense.splitAmong.join(", ")}</strong>
           </p>
