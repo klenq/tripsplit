@@ -26,17 +26,17 @@
 
 .create-group-form button {
   padding: 0.75rem 1.5rem;
-  background: var(--primary-color, #4f46e5);
+  background: var(--success, #28a745);
   color: white;
   border: none;
   border-radius: var(--border-radius, 8px);
   cursor: pointer;
   font-weight: 600;
-  transition: opacity 0.2s;
+  transition: background-color 0.2s;
 }
 
 .create-group-form button:hover {
-  opacity: 0.9;
+  background: var(--success-hover, #218838);
 }
 
 .group-list {
@@ -55,6 +55,8 @@
   background: white;
   border: 1px solid var(--border-color, #ddd);
   border-radius: var(--border-radius, 8px);
+  width: 100%;
+  text-align: left;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
 }
@@ -62,7 +64,7 @@
 .group-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  border-color: var(--primary-color, #4f46e5);
+  border-color: var(--accent, #3d6ff8);
 }
 
 .group-card-icon {

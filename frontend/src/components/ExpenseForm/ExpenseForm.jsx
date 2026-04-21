@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import "./ExpenseForm.css";
+import styles from "./ExpenseForm.module.css";
 
 const CATEGORIES = [
   "Food & Drink",
@@ -20,7 +20,7 @@ const EMPTY_FORM = {
   splitAmong: [],
 };
 
-function ExpenseForm({ members, onSubmit, editingExpense, onCancelEdit }) {
+function ExpenseForm({ members = [], onSubmit, editingExpense = null, onCancelEdit = () => {} }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -92,12 +92,12 @@ function ExpenseForm({ members, onSubmit, editingExpense, onCancelEdit }) {
   const isEditing = Boolean(editingExpense);
 
   return (
-    <div className="expense-form-wrapper">
-      <h2 className="expense-form-title">
+    <div className={styles["expense-form-wrapper"]}>
+      <h2 className={styles["expense-form-title"]}>
         {isEditing ? "✏️ Edit Expense" : "➕ Add Expense"}
       </h2>
-      <form className="expense-form" onSubmit={handleSubmit} noValidate>
-        <div className="form-group">
+      <form className={styles["expense-form"]} onSubmit={handleSubmit} noValidate>
+        <div className={styles["form-group"]}>
           <label htmlFor="description">Description</label>
           <input
             id="description"
@@ -106,15 +106,16 @@ function ExpenseForm({ members, onSubmit, editingExpense, onCancelEdit }) {
             placeholder="e.g. Hotel night 1"
             value={form.description}
             onChange={handleChange}
-            className={errors.description ? "input-error" : ""}
+            className={errors.description ? styles["input-error"] : ""}
+            aria-invalid={!!errors.description}
           />
           {errors.description && (
-            <span className="error-msg">{errors.description}</span>
+            <span className={styles["error-msg"]} role="alert">{errors.description}</span>
           )}
         </div>
 
-        <div className="form-row">
-          <div className="form-group">
+        <div className={styles["form-row"]}>
+          <div className={styles["form-group"]}>
             <label htmlFor="amount">Amount ($)</label>
             <input
               id="amount"
@@ -125,14 +126,15 @@ function ExpenseForm({ members, onSubmit, editingExpense, onCancelEdit }) {
               placeholder="0.00"
               value={form.amount}
               onChange={handleChange}
-              className={errors.amount ? "input-error" : ""}
+              className={errors.amount ? styles["input-error"] : ""}
+              aria-invalid={!!errors.amount}
             />
             {errors.amount && (
-              <span className="error-msg">{errors.amount}</span>
+              <span className={styles["error-msg"]} role="alert">{errors.amount}</span>
             )}
           </div>
 
-          <div className="form-group">
+          <div className={styles["form-group"]}>
             <label htmlFor="date">Date</label>
             <input
               id="date"
@@ -144,8 +146,8 @@ function ExpenseForm({ members, onSubmit, editingExpense, onCancelEdit }) {
           </div>
         </div>
 
-        <div className="form-row">
-          <div className="form-group">
+        <div className={styles["form-row"]}>
+          <div className={styles["form-group"]}>
             <label htmlFor="paidBy">Paid By</label>
             {members && members.length > 0 ? (
               <select
@@ -153,7 +155,8 @@ function ExpenseForm({ members, onSubmit, editingExpense, onCancelEdit }) {
                 name="paidBy"
                 value={form.paidBy}
                 onChange={handleChange}
-                className={errors.paidBy ? "input-error" : ""}
+                className={errors.paidBy ? styles["input-error"] : ""}
+                aria-invalid={!!errors.paidBy}
               >
                 <option value="">Select member</option>
                 {members.map((m) => (
@@ -170,15 +173,16 @@ function ExpenseForm({ members, onSubmit, editingExpense, onCancelEdit }) {
                 placeholder="Who paid?"
                 value={form.paidBy}
                 onChange={handleChange}
-                className={errors.paidBy ? "input-error" : ""}
+                className={errors.paidBy ? styles["input-error"] : ""}
+                aria-invalid={!!errors.paidBy}
               />
             )}
             {errors.paidBy && (
-              <span className="error-msg">{errors.paidBy}</span>
+              <span className={styles["error-msg"]} role="alert">{errors.paidBy}</span>
             )}
           </div>
 
-          <div className="form-group">
+          <div className={styles["form-group"]}>
             <label htmlFor="category">Category</label>
             <select
               id="category"
@@ -195,19 +199,23 @@ function ExpenseForm({ members, onSubmit, editingExpense, onCancelEdit }) {
           </div>
         </div>
 
-        <div className="form-group" style={{ marginTop: "1rem" }}>
-          <label>Split Among (leave empty for everyone)</label>
+        <fieldset className={styles["form-group"]} style={{ marginTop: "1rem", border: "none", padding: 0 }}>
+          <legend style={{ fontSize: "0.8rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--text-secondary, #666)", marginBottom: "0.5rem" }}>
+            Split Among (leave empty for everyone)
+          </legend>
           {members && members.length > 0 ? (
-            <div className="split-among-list" style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", marginTop: "0.5rem" }}>
-              {members.map((m) => {
+            <div className="split-among-list" style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
+              {members.map((m, idx) => {
                 const isChecked = form.splitAmong.includes(m.name);
+                const checkboxId = `split-${idx}`;
                 return (
-                  <label key={m._id} style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.9rem", cursor: "pointer", textTransform: "none", fontWeight: "normal" }}>
+                  <label htmlFor={checkboxId} key={m._id} style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.9rem", cursor: "pointer", textTransform: "none", fontWeight: "normal" }}>
                     <input
+                      id={checkboxId}
                       type="checkbox"
                       checked={isChecked}
                       onChange={() => handleSplitChange(m.name)}
-                      style={{ width: "auto" }}
+                      style={{ width: "auto", margin: 0 }}
                     />
                     {m.name}
                   </label>
@@ -215,21 +223,21 @@ function ExpenseForm({ members, onSubmit, editingExpense, onCancelEdit }) {
               })}
             </div>
           ) : (
-            <span style={{ fontSize: "0.85rem", color: "#666", marginTop: "0.5rem" }}>No members available to split. Add members first.</span>
+            <span style={{ fontSize: "0.85rem", color: "#666" }}>No members available to split. Add members first.</span>
           )}
-        </div>
+        </fieldset>
 
-        <div className="form-actions" style={{ marginTop: "1rem" }}>
+        <div className={styles["form-actions"]} style={{ marginTop: "1rem" }}>
           {isEditing && (
             <button
               type="button"
-              className="btn btn-secondary"
+              className={`${styles.btn} ${styles["btn-secondary"]}`}
               onClick={onCancelEdit}
             >
               Cancel
             </button>
           )}
-          <button type="submit" className="btn btn-primary" disabled={loading}>
+          <button type="submit" className={`${styles.btn} ${styles["btn-primary"]}`} disabled={loading}>
             {loading ? "Saving..." : isEditing ? "Save Changes" : "Add Expense"}
           </button>
         </div>
@@ -253,14 +261,9 @@ ExpenseForm.propTypes = {
     paidBy: PropTypes.string,
     category: PropTypes.string,
     date: PropTypes.string,
+    splitAmong: PropTypes.arrayOf(PropTypes.string),
   }),
   onCancelEdit: PropTypes.func,
-};
-
-ExpenseForm.defaultProps = {
-  members: [],
-  editingExpense: null,
-  onCancelEdit: () => {},
 };
 
 export default ExpenseForm;

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import "./GroupManager.css";
+import styles from "./GroupManager.module.css";
 
 function GroupManager({ onSelectGroup }) {
   const [groups, setGroups] = useState([]);
@@ -53,14 +53,17 @@ function GroupManager({ onSelectGroup }) {
   };
 
   return (
-    <div className="group-manager">
-      <h2>Your Groups</h2>
-      {error && <p className="error-msg">{error}</p>}
+    <section className={styles["group-manager"]} aria-labelledby="group-manager-title">
+      <h2 id="group-manager-title">Your Groups</h2>
       
-      <form className="create-group-form" onSubmit={handleCreateGroup}>
+      {error && <p className={styles["error-msg"]} role="alert">{error}</p>}
+      
+      <form className={styles["create-group-form"]} onSubmit={handleCreateGroup}>
         <input
+          id="newGroupName"
           type="text"
           placeholder="New group name..."
+          aria-label="New group name"
           value={newGroupName}
           onChange={(e) => setNewGroupName(e.target.value)}
           required
@@ -69,23 +72,29 @@ function GroupManager({ onSelectGroup }) {
       </form>
 
       {loading ? (
-        <p>Loading groups...</p>
+        <p aria-live="polite">Loading groups...</p>
       ) : groups.length === 0 ? (
         <p>You don't have any groups yet. Create one to get started!</p>
       ) : (
-        <ul className="group-list">
+        <ul className={styles["group-list"]}>
           {groups.map((g) => (
-            <li key={g._id} className="group-card" onClick={() => onSelectGroup(g._id)}>
-              <div className="group-card-icon">👥</div>
-              <div className="group-card-details">
-                <h3>{g.name}</h3>
-                <span className="group-card-creator">Created by: {g.createdBy}</span>
-              </div>
+            <li key={g._id}>
+              <button 
+                className={styles["group-card"]} 
+                onClick={() => onSelectGroup(g._id)}
+                aria-label={`Select group ${g.name}`}
+              >
+                <div className={styles["group-card-icon"]} aria-hidden="true">👥</div>
+                <div className={styles["group-card-details"]}>
+                  <h3>{g.name}</h3>
+                  <span className={styles["group-card-creator"]}>Created by: {g.createdBy}</span>
+                </div>
+              </button>
             </li>
           ))}
         </ul>
       )}
-    </div>
+    </section>
   );
 }
 
